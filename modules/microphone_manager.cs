@@ -4,7 +4,6 @@ using Process = System.Diagnostics.Process;
 using System.Text;
 using System.Diagnostics;
 using MicrophoneWindow = Gui.MicrophoneWindow;
-//using Tray = Modules.Tray;
 
 namespace Modules {
     class MicrophoneManager
@@ -49,7 +48,6 @@ namespace Modules {
             if (scale == null) return;
 
             int volume = (int)scale.Value;
-            //int.Parse(scale.Value(), out int volume);
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo

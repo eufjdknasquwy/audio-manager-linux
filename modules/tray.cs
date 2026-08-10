@@ -82,7 +82,6 @@ namespace Modules
             indicator.Visible = true;
             indicator.TooltipText = "Audio Manager";
 
-            // 👇 ЛКМ — переключает окно (открыть/свернуть)
             indicator.ButtonPressEvent += (sender, args) =>
             {
                 if (args.Event.Button == 1)
@@ -96,7 +95,6 @@ namespace Modules
             };
         }
 
-        // 👇 ПЕРЕКЛЮЧЕНИЕ ОКНА
         public void ToggleWindow()
         {
             if (dialog.Visible)
