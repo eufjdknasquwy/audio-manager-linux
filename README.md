@@ -42,7 +42,7 @@ Just install it — and it works.
 
 
 
-# 🎵 Audio Manager for linux
+# 🎵 Audio Manager
 
 Простая программа для управления звуком в Linux (C# + GTK)
 
