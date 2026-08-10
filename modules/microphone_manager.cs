@@ -133,5 +133,24 @@ namespace Modules {
             int volume = this.get_volume();
             this.microphone_window.scale.Value = volume;
         }
+        public void reset_volume(object sender, EventArgs e)
+        {
+            int default_volume = 100;
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "bash",
+                    Arguments = $"-c \"pactl set-source-volume @DEFAULT_SOURCE@ {default_volume}%\"",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    StandardOutputEncoding = Encoding.UTF8,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+            process.Start();
+            process.WaitForExit();
+        }
     }
 }

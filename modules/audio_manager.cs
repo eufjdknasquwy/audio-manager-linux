@@ -64,5 +64,24 @@ namespace Modules {
             process.Start();
             process.WaitForExit();
         }
+        public void reset_volume(object sender, EventArgs e)
+        {
+            int default_volume = 50;
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "bash",
+                    Arguments = $"-c \"pactl set-sink-volume @DEFAULT_SINK@ {default_volume}%\"",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    StandardOutputEncoding = Encoding.UTF8,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+            process.Start();
+            process.WaitForExit();
+        }
     }
 }

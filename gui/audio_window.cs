@@ -86,6 +86,7 @@ namespace Gui {
         private Gtk.ComboBoxText combo = null!;
         private Gtk.Label separator = null!;
         public Gtk.Scale scale = null!;
+        private Gtk.Button reset_button;
         public AudioWindow()
         {
             this.audio_manager = new AudioManager(this, GetAudio.get_volume);
@@ -106,10 +107,22 @@ namespace Gui {
             this.create_scale();
             this.create_combo();
             this.create_separator();
+            this.create_reset_volume();
             CssHelper.ApplyCss();
             this.tray.CreateTray(this.dialog);
 
+            GLib.Timeout.Add(500, refresh_volume);
             GLib.Timeout.Add(1800000, refresh_devices);
+        }
+        public bool refresh_volume()
+        {
+            if (this.dialog.Visible)
+            {
+                int volume = GetAudio.get_volume();
+                this.scale.Value = volume;
+                this.microphone_window.refresh_volume();
+            }
+            return true;
         }
         public bool refresh_devices()
         {
@@ -142,6 +155,12 @@ namespace Gui {
             widget.MarginBottom = size;
             widget.MarginStart = size;
             widget.MarginEnd = size;
+        }
+        public void create_reset_volume()
+        {
+            this.reset_button = new Gtk.Button("Сбросить громкость");
+            this.reset_button.Clicked += this.audio_manager.reset_volume;
+            this.audio_page.PackStart(this.reset_button, false, false, 0);
         }
         public void create_pages()
         {

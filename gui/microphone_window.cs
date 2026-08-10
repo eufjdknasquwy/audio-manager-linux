@@ -76,6 +76,7 @@ namespace Gui {
         public Gtk.Scale scale = null!;
         private Gtk.Entry entry_volume = null!;
         private Gtk.Entry entry_volume_telegram = null!;
+        private Gtk.Button reset_button = null!;
         public MicrophoneWindow(AudioWindow window, Action<Gtk.Widget, int> set_margin_all, Gtk.Box micro_page)
         {
             this.microphone_manager = new MicrophoneManager(this, GetMicrophones.get_volume);
@@ -89,6 +90,12 @@ namespace Gui {
             this.create_separator();
             this.create_entry_volume();
             this.create_entry_volume_telegram();
+            this.create_reset_volume();
+        }
+        public void refresh_volume()
+        {
+            int volume = GetMicrophones.get_volume();
+            this.scale.Value = volume;
         }
         public void refresh_devices()
         {
@@ -112,6 +119,12 @@ namespace Gui {
                 this.combo.AppendText(display_name);
             }
             this.combo.Active = -1;
+        }
+        public void create_reset_volume()
+        {
+            this.reset_button = new Gtk.Button("Сбросить громкость");
+            this.reset_button.Clicked += this.microphone_manager.reset_volume;
+            this.micro_page.PackStart(this.reset_button, false, false, 0);
         }
         public void create_label()
         {
