@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using Gtk;
 using Process = System.Diagnostics.Process;
+using Gui;
 
 namespace Modules
 {
@@ -12,19 +13,19 @@ namespace Modules
         private Window dialog;
         private StatusIcon indicator;
         private Menu menu;
-
-        private MenuItem restart_ef_item;
         private MenuItem open_app;
         private MenuItem hide_app;
+        private MenuItem refresh_devices_item;
+        private MenuItem restart_ef_item;
         private MenuItem quit_app;
-
-        public Tray(Window window)
+        private AudioWindow audio_window;
+        public Tray(Window window, AudioWindow audio_window = null)
         {
             this.main_window = window;
+            this.audio_window = audio_window;
             InitializeMenuItems();
             CreateMenu();
         }
-
         private MenuItem CreateMenuItem(string label, string iconName, EventHandler callback)
         {
             var box = new Box(Orientation.Horizontal, 10);
@@ -37,14 +38,8 @@ namespace Modules
             item.Activated += callback;
             return item;
         }
-
         private void InitializeMenuItems()
         {
-            restart_ef_item = CreateMenuItem(
-                "Перезагрузить EasyEffects",
-                "preferences-desktop-multimedia",
-                (sender, e) => RestartEf()
-            );
             open_app = CreateMenuItem(
                 "Открыть",
                 "window-new",
@@ -55,24 +50,33 @@ namespace Modules
                 "list-remove",
                 (sender, e) => HideWindow()
             );
+            refresh_devices_item = CreateMenuItem(
+                "Обновить устройства",
+                "view-refresh",
+                (sender, e) => RefreshDevices()
+            );
+            restart_ef_item = CreateMenuItem(
+                "Перезагрузить EasyEffects",
+                "preferences-desktop-multimedia",
+                (sender, e) => RestartEf()
+            );
             quit_app = CreateMenuItem(
                 "Выйти",
                 "application-exit",
                 (sender, e) => Quit()
             );
         }
-
         private void CreateMenu()
         {
             menu = new Menu();
-            menu.Append(restart_ef_item);
             menu.Append(open_app);
             menu.Append(hide_app);
+            menu.Append(refresh_devices_item);
+            menu.Append(restart_ef_item);
             menu.Append(new SeparatorMenuItem());
             menu.Append(quit_app);
             menu.ShowAll();
         }
-
         public void CreateTray(Window dialogWindow)
         {
             this.dialog = dialogWindow;
@@ -88,13 +92,11 @@ namespace Modules
                     ToggleWindow();
             };
 
-            // ПКМ — показывает меню
             indicator.PopupMenu += (sender, args) =>
             {
                 menu.Popup();
             };
         }
-
         public void ToggleWindow()
         {
             if (dialog.Visible)
@@ -105,34 +107,32 @@ namespace Modules
                 dialog.Present();
             }
         }
-
         public void OpenWindow()
         {
             dialog.ShowAll();
             dialog.Present();
         }
-
         public void HideWindow()
         {
             dialog.Hide();
         }
-
+        public void RefreshDevices()
+        {
+            this.audio_window.refresh_devices();
+        }
         public void RestartEf()
         {
             Process.Start("/home/yegor/.restart-easyeffects.sh");
         }
-
         public void Quit()
         {
             Application.Quit();
         }
-
         public void OnDeleteEvent(object sender, DeleteEventArgs args)
         {
             dialog.Hide();
             args.RetVal = true;
         }
-
         public void OnDialogResponse(object sender, ResponseArgs args)
         {
             if (args.ResponseId == ResponseType.Ok)

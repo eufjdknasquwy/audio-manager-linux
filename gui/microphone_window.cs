@@ -90,6 +90,29 @@ namespace Gui {
             this.create_entry_volume();
             this.create_entry_volume_telegram();
         }
+        public void refresh_devices()
+        {
+            this.combo.RemoveAll();
+            string display_name = "";
+            List<string> available_microphones = GetMicrophones.get_micro_devs();
+            foreach (string micro in available_microphones)
+            {
+                switch (micro)
+                {
+                    case "bluez_input.E4:61:F4:13:DF:08":
+                        display_name = "JBL Tune 520BT";
+                        break;
+                    case "easyeffects_source":
+                        display_name = "EasyEffects";
+                        break;
+                    default:
+                        display_name = micro;
+                        break;
+                }
+                this.combo.AppendText(display_name);
+            }
+            this.combo.Active = -1;
+        }
         public void create_label()
         {
             this.label = new Gtk.Label("Выбор микрофона");
@@ -100,15 +123,24 @@ namespace Gui {
         {
             this.combo = new Gtk.ComboBoxText();
             string display_name = "";
-            List<string> available_sinks = GetMicrophones.get_micro_devs();
-            foreach (string micro in available_sinks)
+            List<string> available_microphones = GetMicrophones.get_micro_devs();
+            foreach (string micro in available_microphones)
             {
-                if (micro == "bluez_input.E4:61:F4:13:DF:08") display_name = "JBL Tune 520BT";
-                else if (micro == "easyeffects_source") display_name = "EasyEffects";
-                else display_name = micro;
+                switch (micro)
+                {
+                    case "bluez_input.E4:61:F4:13:DF:08":
+                        display_name = "JBL Tune 520BT";
+                        break;
+                    case "easyeffects_source":
+                        display_name = "EasyEffects";
+                        break;
+                    default:
+                        display_name = micro;
+                        break;
+                }
                 this.combo.AppendText(display_name);
             }
-            this.combo.Active = 0;
+            this.combo.Active = -1;
             this.combo.Changed += this.microphone_manager.change_source;
             this.micro_page.PackStart(this.combo, false, false, 0);
         }

@@ -89,7 +89,7 @@ namespace Gui {
         public AudioWindow()
         {
             this.audio_manager = new AudioManager(this, GetAudio.get_volume);
-            this.tray = new Tray(this.dialog);
+            this.tray = new Tray(this.dialog, this);
             this.dialog = new Gtk.Dialog("Выбор динамиков", null, 0);
             this.dialog.SetPosition(Gtk.WindowPosition.Center);
             this.dialog.SetDefaultSize(300, 280);
@@ -108,6 +108,33 @@ namespace Gui {
             this.create_separator();
             CssHelper.ApplyCss();
             this.tray.CreateTray(this.dialog);
+
+            GLib.Timeout.Add(1800000, refresh_devices);
+        }
+        public bool refresh_devices()
+        {
+            this.combo.RemoveAll();
+            string display_name = "";
+            List<string> available_sinks = GetAudio.get_audio_devs();
+            foreach (string sinks in available_sinks)
+            {
+                switch (sinks)
+                {
+                    case "bluez_output.E4_61_F4_13_DF_08.1":
+                        display_name = "JBL Tune 520BT";
+                        break;
+                    case "easyeffects_sink":
+                        display_name = "EasyEffects";
+                        break;
+                    default:
+                        display_name = sinks;
+                        break;
+                }
+                this.combo.AppendText(display_name);
+            }
+            this.combo.Active = -1;
+            this.microphone_window.refresh_devices();
+            return true;
         }
         public void set_margin_all(Gtk.Widget widget, int size)
         {
@@ -145,12 +172,21 @@ namespace Gui {
             List<string> available_sinks = GetAudio.get_audio_devs();
             foreach (string sinks in available_sinks)
             {
-                if (sinks == "bluez_output.E4_61_F4_13_DF_08.1") display_name = "JBL Tune 520BT";
-                else if (sinks == "easyeffects_sink") display_name = "EasyEffects";
-                else display_name = sinks;
+                switch (sinks)
+                {
+                    case "bluez_output.E4_61_F4_13_DF_08.1":
+                        display_name = "JBL Tune 520BT";
+                        break;
+                    case "easyeffects_sink":
+                        display_name = "EasyEffects";
+                        break;
+                    default:
+                        display_name = sinks;
+                        break;
+                }
                 this.combo.AppendText(display_name);
             }
-            this.combo.Active = 0;
+            this.combo.Active = -1;
             this.combo.Changed += this.audio_manager.change_sink;
             this.audio_page.PackStart(this.combo, false, false, 0);
         }
