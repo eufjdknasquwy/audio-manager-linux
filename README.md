@@ -34,7 +34,9 @@ Just install it — and it works.
 ```
 
 ## Usage
-./audio-manager # Normal launch
-./audio-manager -t # Start in tray
-./audio-manager -i # Open on microphone tab
-./audio-manager -o # Open on output tab
+```bash
+./audio-manager #Normal launch
+./audio-manager -t #Start in tray
+./audio-manager -i #Open on microphone tab
+./audio-manager -o #Open on output tab
+```

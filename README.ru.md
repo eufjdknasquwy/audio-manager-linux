@@ -29,7 +29,9 @@
 ```
 
 ## Использование
-./audio-manager          # Обычный запуск
-./audio-manager -t       # Сразу в трей
-./audio-manager -i       # Открыть на вкладке микрофонов
-./audio-manager -o       # Открыть на вкладке динамиков
+```bash
+./audio-manager #Обычный запуск
+./audio-manager -t #Сразу в трей
+./audio-manager -i #Открыть на вкладке микрофонов
+./audio-manager -o #Открыть на вкладке динамиков
+```
