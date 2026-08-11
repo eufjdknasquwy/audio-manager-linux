@@ -172,11 +172,36 @@ namespace Gui {
             this.set_margin_all(this.micro_page, 20);
             this.notebook.AppendPage(this.audio_page, new Gtk.Label("Динамики"));
             this.notebook.AppendPage(this.micro_page, new Gtk.Label("Микрофоны"));
+            notebook.SwitchPage += on_switch_page;
 
             if (ArgsParser.Input)
+            {
+                GLib.Timeout.Add(50, () => {
                 this.notebook.CurrentPage = 1;
+                this.dialog.Title = "Выбор микрофона";
+                return false;
+                });
+            }
             else if (ArgsParser.Output)
+            {
+                GLib.Timeout.Add(50, () => {
                 this.notebook.CurrentPage = 0;
+                this.dialog.Title = "Выбор динамиков";
+                return false;
+                });
+            }
+        }
+        public void on_switch_page(object sender, EventArgs e)
+        {
+            switch (this.notebook.CurrentPage)
+            {
+                case 0:
+                    this.dialog.Title = "Выбор динамиков";
+                    break;
+                case 1:
+                    this.dialog.Title = "Выбор микрофона";
+                    break;
+            }
         }
         public void create_label()
         {
