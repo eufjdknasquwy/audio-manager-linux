@@ -82,7 +82,7 @@ namespace Modules
             this.dialog = dialogWindow;
 
             indicator = new StatusIcon();
-            indicator.Pixbuf = IconTheme.Default.LoadIcon("audio-volume-medium", 64, IconLookupFlags.GenericFallback);
+            indicator.Pixbuf = IconTheme.Default.LoadIcon("audio-editor", 64, IconLookupFlags.GenericFallback);
             indicator.Visible = true;
             indicator.TooltipText = "Audio Manager";
 
