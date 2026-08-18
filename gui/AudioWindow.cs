@@ -111,8 +111,8 @@ namespace Gui {
             CssHelper.ApplyCss();
             this.tray.CreateTray(this.dialog);
 
-            GLib.Timeout.Add(500, refresh_volume);
-            GLib.Timeout.Add(1800000, refresh_devices);
+            GLib.Timeout.Add(1500, refresh_volume);
+            GLib.Timeout.Add(3600000, refresh_devices);
         }
         public bool refresh_volume()
         {

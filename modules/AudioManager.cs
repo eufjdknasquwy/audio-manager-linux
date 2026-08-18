@@ -15,6 +15,11 @@ namespace Modules {
             this.audio_window = window;
             this.get_volume = get_volume_func;
         }
+        public void update_scale()
+        {
+            int volume = this.get_volume();
+            this.audio_window.scale.Value = volume;
+        }
         public void change_sink(object sender, EventArgs e)
         {
             var combo = sender as ComboBoxText;
@@ -39,8 +44,7 @@ namespace Modules {
             process.Start();
             process.WaitForExit();
             Console.WriteLine($"Выбраны динамики {sink_name}");
-            int volume = this.get_volume();
-            this.audio_window.scale.Value = volume;
+            this.update_scale();
         }
         public void change_volume(object sender, EventArgs e)
         {
@@ -82,6 +86,7 @@ namespace Modules {
             };
             process.Start();
             process.WaitForExit();
+            this.update_scale();
         }
     }
 }

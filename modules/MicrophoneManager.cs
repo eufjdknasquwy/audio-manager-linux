@@ -15,6 +15,11 @@ namespace Modules {
             this.microphone_window = window;
             this.get_volume = get_volume_func;
         }
+        public void update_scale()
+        {
+            int volume = this.get_volume();
+            this.microphone_window.scale.Value = volume;
+        }
         public void change_source(object sender, EventArgs e)
         {
             var combo = sender as ComboBoxText;
@@ -39,8 +44,7 @@ namespace Modules {
             process.Start();
             process.WaitForExit();
             Console.WriteLine($"Выбран микрофон {micro_name}");
-            int volume = this.get_volume();
-            this.microphone_window.scale.Value = volume;
+            this.update_scale();
         }
         public void change_volume(object sender, EventArgs e)
         {
@@ -87,8 +91,7 @@ namespace Modules {
             };
             process.Start();
             process.WaitForExit();
-            int volume = this.get_volume();
-            this.microphone_window.scale.Value = volume;
+            this.update_scale();
         }
         public void entry_volume_telegram(object sender, EventArgs e)
         {
@@ -130,8 +133,7 @@ namespace Modules {
             };
             process2.Start();
             process2.WaitForExit();
-            int volume = this.get_volume();
-            this.microphone_window.scale.Value = volume;
+            this.update_scale();
         }
         public void reset_volume(object sender, EventArgs e)
         {
@@ -151,6 +153,7 @@ namespace Modules {
             };
             process.Start();
             process.WaitForExit();
+            this.update_scale();
         }
     }
 }
