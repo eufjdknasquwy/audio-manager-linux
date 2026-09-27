@@ -3,10 +3,10 @@
 #include "modules/PulseClient.h"
 #include <iostream>
 #include <pulse/pulseaudio.h>
-Modules::AudioManager::AudioManager(Gui::AudioWindow *window)
+Modules::AudioManager::AudioManager(Gui::AudioWindow *window, std::shared_ptr<Modules::PulseClient> pulse)
 {
+    m_pulse = pulse;
     m_audioWindow = window;
-    m_pulse = std::make_unique<PulseClient>();
     m_paMainloop = m_pulse->GetMainloop();
     m_paContext = m_pulse->GetContext();
 }

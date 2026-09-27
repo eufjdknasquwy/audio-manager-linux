@@ -4,13 +4,12 @@
 #include "modules/PulseClient.h"
 #include <gtkmm.h>
 Gui::MicrophoneWindow::MicrophoneWindow(AudioWindow *window, Gtk::Box *microPage,
-                                        void (*setMarginAll)(Gtk::Widget &, int))
+                                        std::shared_ptr<Modules::PulseClient> pulse)
 {
-    m_microphoneManager = std::make_unique<Modules::MicrophoneManager>(this);
+    m_pulse = pulse;
+    m_microphoneManager = std::make_unique<Modules::MicrophoneManager>(this, m_pulse);
     m_audioWindow = window;
-    m_setMarginAll = setMarginAll;
     m_microPage = microPage;
-    m_pulse = std::make_unique<Modules::PulseClient>();
 
     CreateLabel();
     CreateScale();
@@ -56,6 +55,8 @@ void Gui::MicrophoneWindow::FillCombo()
             displayName = "JBL Tune 520BT";
         else if (microName == "easyeffects_source")
             displayName = "EasyEffects";
+        else if (microName.find(".monitor") != std::string::npos)
+            continue;
         else
             displayName = microName;
         m_combo->append(displayName);

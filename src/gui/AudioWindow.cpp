@@ -11,13 +11,13 @@
 #include <vector>
 Gui::AudioWindow::AudioWindow()
 {
-    m_pulse = std::make_unique<Modules::PulseClient>();
+    m_pulse = std::make_shared<Modules::PulseClient>();
     m_dialog = new Gtk::Dialog("Выбор динамиков");
     m_dialog->set_position(Gtk::WIN_POS_CENTER);
     m_dialog->set_default_size(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
     m_dialog->set_resizable(false);
     m_content = m_dialog->get_content_area();
-    m_audioManager = std::make_unique<Modules::AudioManager>(this);
+    m_audioManager = std::make_unique<Modules::AudioManager>(this, m_pulse);
     m_tray = std::make_unique<Modules::Tray>(*m_dialog, this);
 
     m_dialog->signal_delete_event().connect(
@@ -31,7 +31,7 @@ Gui::AudioWindow::AudioWindow()
     m_dialog->signal_response().connect([this](int response_id) { m_tray->OnDialogResponse(response_id); });
 
     CreatePages();
-    m_microphoneWindow = std::make_unique<Gui::MicrophoneWindow>(this, m_microPage, &AudioWindow::SetMarginAll);
+    m_microphoneWindow = std::make_unique<Gui::MicrophoneWindow>(this, m_microPage, m_pulse);
     CreateLabel();
     CreateScale();
     CreateCombo();

@@ -4,6 +4,7 @@
 #include "gtkmm/scale.h"
 #include "gui/AudioWindow.h"
 #include "modules/PulseClient.h"
+#include <memory>
 #include <sigc++/connection.h>
 
 namespace Modules
@@ -15,7 +16,7 @@ namespace Gui
     class MicrophoneWindow
     {
         public:
-            MicrophoneWindow(AudioWindow *window, Gtk::Box *microPage, void (*setMarginAll)(Gtk::Widget &, int));
+            MicrophoneWindow(AudioWindow *window, Gtk::Box *microPage, std::shared_ptr<Modules::PulseClient> pulse);
             ~MicrophoneWindow();
             void RefreshVolume();
             void RefreshDevices();
@@ -39,7 +40,7 @@ namespace Gui
 
         private:
             std::unique_ptr<Modules::MicrophoneManager> m_microphoneManager;
-            std::unique_ptr<Modules::PulseClient> m_pulse;
+            std::shared_ptr<Modules::PulseClient> m_pulse;
             AudioWindow *m_audioWindow = nullptr;
             void (*m_setMarginAll)(Gtk::Widget &, int) = nullptr;
             Gtk::Box *m_microPage = nullptr;

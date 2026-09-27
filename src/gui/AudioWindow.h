@@ -40,7 +40,7 @@ namespace Gui
             std::unique_ptr<Modules::AudioManager> m_audioManager;
             std::unique_ptr<Modules::Tray> m_tray;
             std::unique_ptr<Gui::MicrophoneWindow> m_microphoneWindow;
-            std::unique_ptr<Modules::PulseClient> m_pulse;
+            std::shared_ptr<Modules::PulseClient> m_pulse;
 
             Gtk::Dialog *m_dialog = nullptr;
             Gtk::Box *m_content = nullptr;

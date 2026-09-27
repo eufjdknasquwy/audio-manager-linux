@@ -12,7 +12,7 @@ namespace Modules
     class MicrophoneManager
     {
         public:
-            MicrophoneManager(Gui::MicrophoneWindow *window);
+            MicrophoneManager(Gui::MicrophoneWindow *window, std::shared_ptr<Modules::PulseClient> pulse);
             ~MicrophoneManager();
 
             void UpdateScale();
@@ -24,7 +24,7 @@ namespace Modules
 
         private:
             Gui::MicrophoneWindow *m_microphoneWindow = nullptr;
-            std::unique_ptr<PulseClient> m_pulse;
+            std::shared_ptr<PulseClient> m_pulse;
             pa_mainloop *m_paMainloop = nullptr;
             pa_context *m_paContext = nullptr;
             static constexpr int DEFAULT_SOURCE_VOLUME = 100;

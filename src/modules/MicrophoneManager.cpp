@@ -9,10 +9,11 @@ namespace Gui
 {
     class MicrophoneWindow;
 }
-Modules::MicrophoneManager::MicrophoneManager(Gui::MicrophoneWindow *window)
+Modules::MicrophoneManager::MicrophoneManager(Gui::MicrophoneWindow *window,
+                                              std::shared_ptr<Modules::PulseClient> pulse)
 {
     m_microphoneWindow = window;
-    m_pulse = std::make_unique<PulseClient>();
+    m_pulse = pulse;
     m_paMainloop = m_pulse->GetMainloop();
     m_paContext = m_pulse->GetContext();
 }

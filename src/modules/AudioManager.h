@@ -12,7 +12,7 @@ namespace Modules
     class AudioManager
     {
         public:
-            AudioManager(Gui::AudioWindow *window);
+            AudioManager(Gui::AudioWindow *window, std::shared_ptr<Modules::PulseClient> pulse);
             ~AudioManager();
             void UpdateScale();
             void ChangeSink();
@@ -21,7 +21,7 @@ namespace Modules
 
         private:
             Gui::AudioWindow *m_audioWindow = nullptr;
-            std::unique_ptr<PulseClient> m_pulse;
+            std::shared_ptr<PulseClient> m_pulse;
             pa_mainloop *m_paMainloop = nullptr;
             pa_context *m_paContext = nullptr;
             static constexpr int DEFAULT_SINK_VOLUME = 50;
