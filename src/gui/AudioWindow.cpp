@@ -40,29 +40,17 @@ Gui::AudioWindow::AudioWindow()
     CssHelper::ApplyCss();
     m_tray->CreateTray(*m_dialog);
 
-    Glib::signal_timeout().connect(sigc::mem_fun(*this, &AudioWindow::RefreshVolume), 1500);
+    // Glib::signal_timeout().connect(sigc::mem_fun(*this, &AudioWindow::RefreshVolume), 1500);
     Glib::signal_timeout().connect(sigc::mem_fun(*this, &AudioWindow::RefreshDevices), 3600000);
 }
 Gui::AudioWindow::~AudioWindow()
 {
     delete m_dialog;
 }
-Gtk::Window &Gui::AudioWindow::GetWindow()
-{
-    return *m_dialog;
-}
 void Gui::AudioWindow::Show()
 {
     if (!Modules::Parser::Tray)
         m_dialog->show_all();
-}
-Gtk::ComboBoxText *Gui::AudioWindow::GetCombo()
-{
-    return m_combo;
-}
-Gtk::Scale *Gui::AudioWindow::GetScale()
-{
-    return m_scale;
 }
 bool Gui::AudioWindow::RefreshVolume()
 {

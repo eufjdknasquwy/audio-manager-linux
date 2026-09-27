@@ -1,10 +1,5 @@
 #include "modules/PulseClient.h"
 #include <iostream>
-#include <pulse/context.h>
-#include <pulse/def.h>
-#include <pulse/introspect.h>
-#include <pulse/mainloop.h>
-#include <pulse/operation.h>
 #include <string>
 #include <vector>
 Modules::PulseClient::PulseClient()
@@ -21,7 +16,15 @@ Modules::PulseClient::PulseClient()
         m_ml = nullptr;
         return;
     }
-    WaitForReady();
+    if (!WaitForReady())
+    {
+        std::cerr << "PulseAudio context not ready\n";
+        return;
+    }
+    pa_context_set_subscribe_callback(m_ctx, &PulseClient::SubscribeCb, this);
+    pa_operation *op = pa_context_subscribe(m_ctx, PA_SUBSCRIPTION_MASK_SERVER, nullptr, nullptr);
+    if (op)
+        pa_operation_unref(op);
 }
 Modules::PulseClient::~PulseClient()
 {
@@ -43,12 +46,31 @@ bool Modules::PulseClient::WaitForReady()
         return false;
     while (true)
     {
-        pa_mainloop_iterate(m_ml, 0, nullptr);
+        pa_mainloop_iterate(m_ml, DEFAULT_ML_ITERATE_BLOCK, nullptr);
         auto state = pa_context_get_state(m_ctx);
         if (state == PA_CONTEXT_READY)
             return true;
         if (state == PA_CONTEXT_FAILED || state == PA_CONTEXT_TERMINATED)
             return false;
+    }
+}
+void Modules::PulseClient::SubscribeCb(pa_context *, pa_subscription_event_type_t t, uint32_t /*idx*/, void *userdata)
+{
+    std::cout << "SubscribeCb called, t=" << t << "\n";
+    if (!userdata)
+        return;
+
+    auto *self = static_cast<PulseClient *>(userdata);
+
+    auto facility = t & PA_SUBSCRIPTION_EVENT_FACILITY_MASK;
+    auto type = t & PA_SUBSCRIPTION_EVENT_TYPE_MASK;
+
+    std::cout << "  facility=" << facility << " type=" << type << "\n";
+
+    if (facility == PA_SUBSCRIPTION_EVENT_SERVER && type == PA_SUBSCRIPTION_EVENT_CHANGE)
+    {
+        std::cout << "  emitting signal_default_changed\n";
+        self->m_signal_default_changed.emit();
     }
 }
 namespace Modules
@@ -65,12 +87,12 @@ namespace Modules
     };
     struct SinkVolumeData
     {
-            int volume = 50;
+            int volume = -1;
             bool done = false;
     };
     struct SourceVolumeData
     {
-            int volume = 50;
+            int volume = -1;
             bool done = false;
     };
 } // namespace Modules
@@ -91,6 +113,20 @@ void Modules::PulseClient::SinksListCb(pa_context *, const pa_sink_info *info, i
     if (info && info->name)
         data->sinks.emplace_back(info->name);
 }
+std::vector<std::string> Modules::PulseClient::GetSinks()
+{
+    SinksListData data;
+    pa_operation *op = pa_context_get_sink_info_list(m_ctx, SinksListCb, &data);
+
+    if (!op)
+        return data.sinks;
+
+    while (!data.done)
+        pa_mainloop_iterate(m_ml, DEFAULT_ML_ITERATE_BLOCK, nullptr);
+
+    pa_operation_unref(op);
+    return data.sinks;
+}
 void Modules::PulseClient::SourcesListCb(pa_context *, const pa_source_info *info, int eol, void *userdata)
 {
     auto *data = static_cast<SourcesListData *>(userdata);
@@ -106,20 +142,6 @@ void Modules::PulseClient::SourcesListCb(pa_context *, const pa_source_info *inf
     }
     if (info && info->name)
         data->sources.emplace_back(info->name);
-}
-std::vector<std::string> Modules::PulseClient::GetSinks()
-{
-    SinksListData data;
-    pa_operation *op = pa_context_get_sink_info_list(m_ctx, SinksListCb, &data);
-
-    if (!op)
-        return data.sinks;
-
-    while (!data.done)
-        pa_mainloop_iterate(m_ml, DEFAULT_ML_ITERATE_BLOCK, nullptr);
-
-    pa_operation_unref(op);
-    return data.sinks;
 }
 std::vector<std::string> Modules::PulseClient::GetSources()
 {
@@ -148,18 +170,6 @@ void Modules::PulseClient::SinkVolumeCb(pa_context *, const pa_sink_info *info, 
     data->volume = static_cast<int>(avg * 100.0 / PA_VOLUME_NORM + 0.5);
     data->done = true;
 }
-void Modules::PulseClient::SourceVolumeCb(pa_context *, const pa_source_info *info, int eol, void *userdata)
-{
-    auto *data = static_cast<SourceVolumeData *>(userdata);
-    if (eol != 0 || !info)
-    {
-        data->done = true;
-        return;
-    }
-    pa_volume_t avg = pa_cvolume_avg(&info->volume);
-    data->volume = static_cast<int>(avg * 100.0 / PA_VOLUME_NORM + 0.5);
-    data->done = true;
-}
 int Modules::PulseClient::GetDefaultSinkVolume()
 {
     SinkVolumeData data;
@@ -173,6 +183,18 @@ int Modules::PulseClient::GetDefaultSinkVolume()
 
     pa_operation_unref(op);
     return data.volume;
+}
+void Modules::PulseClient::SourceVolumeCb(pa_context *, const pa_source_info *info, int eol, void *userdata)
+{
+    auto *data = static_cast<SourceVolumeData *>(userdata);
+    if (eol != 0 || !info)
+    {
+        data->done = true;
+        return;
+    }
+    pa_volume_t avg = pa_cvolume_avg(&info->volume);
+    data->volume = static_cast<int>(avg * 100.0 / PA_VOLUME_NORM + 0.5);
+    data->done = true;
 }
 int Modules::PulseClient::GetDefaultSourceVolume()
 {

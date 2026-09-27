@@ -5,10 +5,6 @@
 #include <iostream>
 #include <pulse/pulseaudio.h>
 #include <string>
-namespace Gui
-{
-    class MicrophoneWindow;
-}
 Modules::MicrophoneManager::MicrophoneManager(Gui::MicrophoneWindow *window,
                                               std::shared_ptr<Modules::PulseClient> pulse)
 {
@@ -16,6 +12,7 @@ Modules::MicrophoneManager::MicrophoneManager(Gui::MicrophoneWindow *window,
     m_pulse = pulse;
     m_paMainloop = m_pulse->GetMainloop();
     m_paContext = m_pulse->GetContext();
+    m_pulse->signal_default_changed().connect([this]() { UpdateScale(); });
 }
 Modules::MicrophoneManager::~MicrophoneManager() = default;
 void Modules::MicrophoneManager::UpdateScale()
@@ -23,6 +20,8 @@ void Modules::MicrophoneManager::UpdateScale()
     if (!m_microphoneWindow)
         return;
     int volume = m_pulse->GetDefaultSourceVolume();
+    if (volume < 0)
+        return;
     m_microphoneWindow->m_scaleConn.block();
     m_microphoneWindow->GetScale()->set_value(volume);
     m_microphoneWindow->m_scaleConn.unblock();
@@ -31,13 +30,14 @@ void Modules::MicrophoneManager::ChangeSource()
 {
     Gtk::ComboBoxText *combo = m_microphoneWindow->GetCombo();
     std::string microName = combo->get_active_text();
+    if (microName.empty())
+        return;
     if (microName == "JBL Tune 520BT")
         microName = "bluez_input.E4:61:F4:13:DF:08";
     else if (microName == "EasyEffects")
         microName = "easyeffects_source";
 
     SetDefaultSource(microName);
-    UpdateScale();
 }
 void Modules::MicrophoneManager::ChangeVolume()
 {
@@ -51,6 +51,8 @@ void Modules::MicrophoneManager::EntryVolume()
     if (!m_microphoneWindow)
         return;
     std::string input = m_microphoneWindow->GetEntry()->get_text();
+    if (input.empty())
+        return;
     m_microphoneWindow->GetEntry()->set_text("");
     if (input.ends_with('%'))
     {
@@ -90,8 +92,10 @@ void Modules::MicrophoneManager::EntryVolumeTelegram()
     if (!m_microphoneWindow)
         return;
     std::string input = m_microphoneWindow->GetEntryTelegram()->get_text();
+    if (input.empty())
+        return;
     m_microphoneWindow->GetEntryTelegram()->set_text("");
-    int percentVolume = DEFAULT_SOURCE_VOLUME;
+    int percentVolume = -1;
     if (input.ends_with('%'))
     {
         std::string percentVolumeString = input;
@@ -139,15 +143,12 @@ void Modules::MicrophoneManager::EntryVolumeTelegram()
         return;
     }
     while (pa_operation_get_state(op) == PA_OPERATION_RUNNING)
-        pa_mainloop_iterate(m_paMainloop, 0, nullptr);
+        pa_mainloop_iterate(m_paMainloop, DEFAULT_ML_ITERATE_BLOCK, nullptr);
 
     pa_operation_unref(op);
-    UpdateScale();
 }
 void Modules::MicrophoneManager::ResetVolume()
 {
-    if (!m_microphoneWindow)
-        return;
     SetSourceVolume(DEFAULT_SOURCE_VOLUME);
     UpdateScale();
 }
@@ -160,13 +161,15 @@ void Modules::MicrophoneManager::SetDefaultSource(const std::string &sourceName)
         return;
     }
     while (pa_operation_get_state(op) == PA_OPERATION_RUNNING)
-        pa_mainloop_iterate(m_paMainloop, 0, nullptr);
+        pa_mainloop_iterate(m_paMainloop, DEFAULT_ML_ITERATE_BLOCK, nullptr);
 
     pa_operation_unref(op);
     std::cout << "Source set to: " << sourceName << "\n";
 }
 void Modules::MicrophoneManager::SetSourceVolume(int targetVolume)
 {
+    if (!m_pulse->IsReady())
+        return;
     pa_cvolume volume;
     pa_volume_t v = static_cast<pa_volume_t>(std::round(targetVolume / 100.0 * PA_VOLUME_NORM));
     pa_cvolume_set(&volume, 2, v);
@@ -177,7 +180,7 @@ void Modules::MicrophoneManager::SetSourceVolume(int targetVolume)
         return;
     }
     while (pa_operation_get_state(op) == PA_OPERATION_RUNNING)
-        pa_mainloop_iterate(m_paMainloop, 0, nullptr);
+        pa_mainloop_iterate(m_paMainloop, DEFAULT_ML_ITERATE_BLOCK, nullptr);
 
     pa_operation_unref(op);
     std::cout << "Source volume set to: " << targetVolume << "\n";
@@ -191,7 +194,7 @@ int Modules::MicrophoneManager::GetTelegramSourceOutputId()
         return -1;
     while (!data.done)
     {
-        pa_mainloop_iterate(m_paMainloop, 0, nullptr);
+        pa_mainloop_iterate(m_paMainloop, DEFAULT_ML_ITERATE_BLOCK, nullptr);
     }
     pa_operation_unref(op);
     return data.found ? static_cast<int>(data.firstId) : -1;
@@ -200,7 +203,7 @@ void Modules::MicrophoneManager::SourceOutputListCallback(pa_context *, const pa
                                                           void *userdata)
 {
     auto *data = static_cast<SourceOutputData *>(userdata);
-    if (eol)
+    if (eol != 0 || !info)
     {
         data->done = true;
         return;
@@ -211,5 +214,6 @@ void Modules::MicrophoneManager::SourceOutputListCallback(pa_context *, const pa
     {
         data->firstId = info->index;
         data->found = true;
+        data->done = true;
     }
 }

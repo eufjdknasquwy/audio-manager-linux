@@ -20,6 +20,7 @@ namespace Modules
             void ResetVolume();
 
         private:
+            static constexpr int DEFAULT_ML_ITERATE_BLOCK = 1;
             Gui::AudioWindow *m_audioWindow = nullptr;
             std::shared_ptr<PulseClient> m_pulse;
             pa_mainloop *m_paMainloop = nullptr;

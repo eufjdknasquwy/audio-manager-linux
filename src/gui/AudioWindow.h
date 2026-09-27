@@ -19,10 +19,19 @@ namespace Gui
         public:
             AudioWindow();  // конструктор
             ~AudioWindow(); // деструктор
-            Gtk::Window &GetWindow();
             void Show();
-            Gtk::ComboBoxText *GetCombo();
-            Gtk::Scale *GetScale();
+            Gtk::Window &GetWindow()
+            {
+                return *m_dialog;
+            };
+            Gtk::ComboBoxText *GetCombo()
+            {
+                return m_combo;
+            };
+            Gtk::Scale *GetScale()
+            {
+                return m_scale;
+            };
             bool RefreshDevices();
             enum ResponseId
             {
