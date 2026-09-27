@@ -15,6 +15,7 @@ Gui::AudioWindow::AudioWindow()
     m_dialog = new Gtk::Dialog("Выбор динамиков");
     m_dialog->set_position(Gtk::WIN_POS_CENTER);
     m_dialog->set_default_size(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
+    m_dialog->set_resizable(false);
     m_content = m_dialog->get_content_area();
     m_audioManager = std::make_unique<Modules::AudioManager>(this);
     m_tray = std::make_unique<Modules::Tray>(*m_dialog, this);
@@ -25,11 +26,9 @@ Gui::AudioWindow::AudioWindow()
             m_tray->OnDeleteEvent();
             return true;
         });
-    // m_dialog->signal_delete_event().connect(sigc::mem_fun(*m_tray, &Modules::Tray::OnDeleteEvent));
     m_dialog->add_button("Свернуть", Gui::AudioWindow::RESPONSE_HIDE);
     m_dialog->add_button("Закрыть", Gui::AudioWindow::RESPONSE_QUIT);
     m_dialog->signal_response().connect([this](int response_id) { m_tray->OnDialogResponse(response_id); });
-    // m_dialog->signal_response().connect(sigc::mem_fun(*m_tray, &Modules::Tray::OnDialogResponse));
 
     CreatePages();
     m_microphoneWindow = std::make_unique<Gui::MicrophoneWindow>(this, m_microPage, &AudioWindow::SetMarginAll);

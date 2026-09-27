@@ -19,10 +19,22 @@ namespace Gui
             ~MicrophoneWindow();
             void RefreshVolume();
             void RefreshDevices();
-            Gtk::Scale *GetScale();
-            Gtk::ComboBoxText *GetCombo();
-            Gtk::Entry *GetEntry();
-            Gtk::Entry *GetEntryTelegram();
+            Gtk::Scale *GetScale()
+            {
+                return m_scale;
+            };
+            Gtk::ComboBoxText *GetCombo()
+            {
+                return m_combo;
+            };
+            Gtk::Entry *GetEntry()
+            {
+                return m_entryVolume;
+            };
+            Gtk::Entry *GetEntryTelegram()
+            {
+                return m_entryVolumeTelegram;
+            };
             sigc::connection m_scaleConn;
 
         private:

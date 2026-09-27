@@ -34,7 +34,7 @@ namespace Gui
         private:
             // поля
             static constexpr int DEFAULT_MARGIN = 20;
-            static constexpr int DEFAULT_WINDOW_WIDTH = 200;
+            static constexpr int DEFAULT_WINDOW_WIDTH = 300;
             static constexpr int DEFAULT_WINDOW_HEIGHT = 280;
 
             std::unique_ptr<Modules::AudioManager> m_audioManager;

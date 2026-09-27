@@ -1,7 +1,5 @@
 #include "modules/Parser.h"
-#include "Parser.h"
 #include <cstring>
-
 namespace Modules
 {
     bool Parser::Tray = false;

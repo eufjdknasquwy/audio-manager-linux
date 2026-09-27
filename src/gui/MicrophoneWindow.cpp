@@ -1,7 +1,4 @@
 #include "gui/MicrophoneWindow.h"
-#include "gtkmm/comboboxtext.h"
-#include "gtkmm/entry.h"
-#include "gtkmm/scale.h"
 #include "gui/AudioWindow.h"
 #include "modules/MicrophoneManager.h"
 #include "modules/PulseClient.h"
@@ -35,22 +32,6 @@ void Gui::MicrophoneWindow::RefreshDevices()
 {
     m_combo->remove_all();
     FillCombo();
-}
-Gtk::Scale *Gui::MicrophoneWindow::GetScale()
-{
-    return m_scale;
-}
-Gtk::ComboBoxText *Gui::MicrophoneWindow::GetCombo()
-{
-    return m_combo;
-}
-Gtk::Entry *Gui::MicrophoneWindow::GetEntry()
-{
-    return m_entryVolume;
-}
-Gtk::Entry *Gui::MicrophoneWindow::GetEntryTelegram()
-{
-    return m_entryVolumeTelegram;
 }
 void Gui::MicrophoneWindow::CreateResetVolume()
 {
