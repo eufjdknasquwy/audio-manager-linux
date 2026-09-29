@@ -12,7 +12,8 @@ Modules::MicrophoneManager::MicrophoneManager(Gui::MicrophoneWindow *window,
     m_pulse = pulse;
     m_paMainloop = m_pulse->GetMainloop();
     m_paContext = m_pulse->GetContext();
-    m_pulse->signal_default_changed().connect([this]() { UpdateScale(); });
+    m_pulse->signal_default_changed().connect([this]()
+                                              { Glib::signal_idle().connect_once([this]() { UpdateScale(); }); });
 }
 Modules::MicrophoneManager::~MicrophoneManager() = default;
 void Modules::MicrophoneManager::UpdateScale()

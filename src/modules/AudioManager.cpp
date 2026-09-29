@@ -10,16 +10,15 @@ Modules::AudioManager::AudioManager(Gui::AudioWindow *window, std::shared_ptr<Mo
     m_pulse = pulse;
     m_paMainloop = m_pulse->GetMainloop();
     m_paContext = m_pulse->GetContext();
-    m_pulse->signal_default_changed().connect([this]() { UpdateScale(); });
+    m_pulse->signal_default_changed().connect([this]()
+                                              { Glib::signal_idle().connect_once([this]() { UpdateScale(); }); });
 }
 Modules::AudioManager::~AudioManager() = default;
 void Modules::AudioManager::UpdateScale()
 {
-    std::cout << "UpdateScale called\n";
     if (!m_audioWindow)
         return;
     int volume = m_pulse->GetDefaultSinkVolume();
-    std::cout << "  volume = " << volume << "\n";
     if (volume < 0)
         return;
     m_audioWindow->m_scaleConn.block();

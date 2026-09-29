@@ -56,7 +56,6 @@ bool Modules::PulseClient::WaitForReady()
 }
 void Modules::PulseClient::SubscribeCb(pa_context *, pa_subscription_event_type_t t, uint32_t /*idx*/, void *userdata)
 {
-    std::cout << "SubscribeCb called, t=" << t << "\n";
     if (!userdata)
         return;
 
@@ -65,11 +64,8 @@ void Modules::PulseClient::SubscribeCb(pa_context *, pa_subscription_event_type_
     auto facility = t & PA_SUBSCRIPTION_EVENT_FACILITY_MASK;
     auto type = t & PA_SUBSCRIPTION_EVENT_TYPE_MASK;
 
-    std::cout << "  facility=" << facility << " type=" << type << "\n";
-
     if (facility == PA_SUBSCRIPTION_EVENT_SERVER && type == PA_SUBSCRIPTION_EVENT_CHANGE)
     {
-        std::cout << "  emitting signal_default_changed\n";
         self->m_signal_default_changed.emit();
     }
 }

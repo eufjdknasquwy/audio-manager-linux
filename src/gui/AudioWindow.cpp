@@ -40,7 +40,14 @@ Gui::AudioWindow::AudioWindow()
     CssHelper::ApplyCss();
     m_tray->CreateTray(*m_dialog);
 
-    // Glib::signal_timeout().connect(sigc::mem_fun(*this, &AudioWindow::RefreshVolume), 1500);
+    Glib::signal_timeout().connect(
+        [this]()
+        {
+            if (m_pulse && m_pulse->GetMainloop())
+                pa_mainloop_iterate(m_pulse->GetMainloop(), 0, nullptr);
+            return true;
+        },
+        100);
     Glib::signal_timeout().connect(sigc::mem_fun(*this, &AudioWindow::RefreshDevices), 3600000);
 }
 Gui::AudioWindow::~AudioWindow()
